@@ -1,0 +1,48 @@
+# FlowPay Envio HyperIndex Configuration
+# This configuration indexes ERC-7715 permission grants and payment executions
+#
+# To deploy this indexer:
+# 1. Install Envio: npm install -g envio
+# 2. Run: envio codegen
+# 3. Run: envio dev (for local development)
+# 4. Deploy: envio deploy (for production)
+#
+# Documentation: https://docs.envio.dev/docs/HyperIndex/overview
+
+name: flowpay-indexer
+version: 1.0.0
+description: Indexer for FlowPay - Automated crypto payments with ERC-7715
+
+networks:
+  - id: 11155111 # Sepolia
+    start_block: 0
+    contracts:
+      # MetaMask Delegation Framework contracts on Sepolia
+      # These would need to be updated with actual deployed addresses
+      - name: DelegationManager
+        address: "0x0000000000000000000000000000000000000000" # Replace with actual address
+        handler: src/DelegationHandler.ts
+        events:
+          - event: PermissionGranted(address indexed granter, address indexed sessionAccount, bytes32 context, uint256 expiry)
+          - event: PermissionRevoked(address indexed granter, bytes32 context)
+          - event: DelegationExecuted(bytes32 indexed context, address indexed executor, address to, uint256 value, bytes data)
+
+      # ERC20 Token (USDC on Sepolia) for payment tracking
+      - name: USDC
+        address: "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238"
+        handler: src/ERC20Handler.ts
+        events:
+          - event: Transfer(address indexed from, address indexed to, uint256 value)
+
+rollback_on_reorg: true
+
+field_selection:
+  transaction_fields:
+    - hash
+    - from
+    - to
+    - value
+    - gas
+    - gas_price
+    - block_number
+    - block_timestamp

@@ -1,0 +1,65 @@
+# FlowPay GraphQL Schema for Envio HyperIndex
+# This schema defines the indexed data structure for querying
+
+type Permission @entity {
+  id: ID!
+  grantedAt: Int!
+  granter: String! @index
+  sessionAccount: String! @index
+  tokenAddress: String!
+  permissionType: String! # "periodic" or "stream"
+  periodAmount: String
+  periodDuration: Int
+  amountPerSecond: String
+  maxAmount: String
+  expiry: Int!
+  context: String! @index
+  status: String! # "active", "revoked", "expired"
+  payments: [Payment!]! @derivedFrom(field: "permission")
+  createdAtBlock: Int!
+  createdAtTx: String!
+}
+
+type Payment @entity {
+  id: ID!
+  permission: Permission!
+  executedAt: Int!
+  from: String! @index
+  to: String! @index
+  amount: String!
+  tokenAddress: String!
+  transactionHash: String!
+  blockNumber: Int!
+}
+
+type Analytics @entity {
+  id: ID! # Always "global"
+  totalPermissions: Int!
+  activePermissions: Int!
+  totalPayments: Int!
+  totalVolume: String! # Total USDC volume in smallest units
+  uniqueUsers: Int!
+  lastUpdated: Int!
+}
+
+type User @entity {
+  id: ID! # User address
+  totalPermissionsGranted: Int!
+  activePermissions: Int!
+  totalPaymentsSent: Int!
+  totalPaymentsReceived: Int!
+  totalVolumeSent: String!
+  totalVolumeReceived: String!
+  firstActivityAt: Int!
+  lastActivityAt: Int!
+}
+
+type DailyStats @entity {
+  id: ID! # Format: "YYYY-MM-DD"
+  date: Int!
+  permissionsGranted: Int!
+  permissionsRevoked: Int!
+  paymentsExecuted: Int!
+  volume: String!
+  uniqueUsers: Int!
+}
