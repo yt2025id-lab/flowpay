@@ -146,8 +146,8 @@ export default function DashboardPage() {
             subscriptions={subscriptions.map((s) => ({
               id: s.id,
               name: s.name,
-              amount: s.amount.toString(),
-              frequency: s.frequency,
+              amount: (s.periodAmount ?? s.amountPerSecond ?? BigInt(0)).toString(),
+              frequency: s.periodDuration ? `${s.periodDuration}s` : 'stream',
               status: s.status,
             }))}
           />
